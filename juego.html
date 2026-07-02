@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Naela Walter</title>
+    <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #121212; color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .glass-panel { background: rgba(24, 24, 24, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .accent-aqua { color: #00f5ff; }
+        .border-aqua { border-color: #00f5ff; }
+        .bg-aqua { background-color: #00f5ff; }
+    </style>
+</head>
+<body class="w-screen h-screen pt-24 pb-24 px-6 relative overflow-x-hidden">
+
+    <!-- CONTENEDOR PARA LAS ALERTAS ANIMADAS -->
+    <div id="custom-alert" class="fixed top-28 left-1/2 transform -translate-x-1/2 z-[60] transition-all duration-300 opacity-0 pointer-events-none -translate-y-4 w-[90%] max-w-sm">
+        <div id="custom-alert-content" class="px-5 py-3 rounded-xl shadow-lg shadow-black/50 font-semibold text-sm text-center border">
+        </div>
+    </div>
+
+    <header class="fixed top-0 left-0 w-full z-40 bg-gradient-to-b from-[#00f5ff]/10 to-transparent pt-10 pb-4 px-6 flex items-center gap-4">
+        <img src="assets/perfil-naela.jpg" alt="Perfil" class="w-12 h-12 rounded-full object-cover border-2 border-[#00f5ff] shadow-lg bg-gray-800">
+        <div>
+            <p class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Juego Activo</p>
+            <h1 class="text-xl font-bold">Feliz Cumpleaños</h1>
+        </div>
+    </header>
+
+    <main class="mt-4">
+        <h2 class="text-2xl font-bold mb-2">Búsqueda del Tesoro</h2>
+        <p class="text-gray-400 text-xs mb-6">Encuentra los 5 códigos físicos que escondí para liberar tu regalo.</p>
+
+        <div class="bg-gray-800 rounded-full h-4 w-full mb-2 overflow-hidden">
+            <div id="progress-bar" class="bg-gradient-to-r from-pink-500 to-[#00f5ff] h-full transition-all duration-500" style="width: 0%;"></div>
+        </div>
+        <p id="progress-text" class="text-right text-xs text-gray-400 font-bold mb-6">0 / 5 Completados</p>
+
+        <div class="flex justify-between mb-8" id="padlocks-container">
+            </div>
+
+        <div id="input-controls" class="glass-panel p-5 rounded-2xl">
+            <div class="flex gap-2 mb-4">
+                <input type="text" id="manual-code-input" placeholder="Escribe el código aquí" class="w-full bg-gray-950 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#00f5ff] uppercase text-sm tracking-widest">
+                <button onclick="canjearCodigoManual()" class="bg-aqua text-black font-bold px-5 rounded-xl active:scale-95 transition-transform">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+            
+            <div class="relative flex items-center py-2 mb-4">
+                <div class="flex-grow border-t border-gray-800"></div>
+                <span class="flex-shrink-0 mx-3 text-gray-600 text-[10px] tracking-widest">O USA LA CÁMARA</span>
+                <div class="flex-grow border-t border-gray-800"></div>
+            </div>
+
+            <button onclick="toggleCamera()" class="w-full bg-gray-900 border border-gray-700 hover:bg-gray-800 text-white font-bold py-3 rounded-xl transition-transform active:scale-95 flex items-center justify-center gap-2 text-sm">
+                <i class="fa-solid fa-camera accent-aqua"></i> Escanear Pista QR
+            </button>
+            <div id="reader" class="w-full mt-4 rounded-xl overflow-hidden hidden"></div>
+        </div>
+
+        <div id="final-reward" class="hidden text-center mt-6 glass-panel p-6 rounded-2xl border-aqua border shadow-xl shadow-[#00f5ff]/10">
+            <h3 class="text-2xl font-bold accent-aqua mb-2">¡Completado, mi vida!</h3>
+            <p class="text-xs text-gray-300 mb-6">Muéstrame este código QR en mi pantalla para darte tu caja de sorpresas principal.</p>
+            <div class="bg-white p-4 rounded-2xl inline-block shadow-inner shadow-black">
+                <div id="qrcode-container"></div>
+            </div>
+        </div>
+    </main>
+
+    <nav class="fixed bottom-0 left-0 w-full glass-panel bg-black/90 z-40 py-2 px-6">
+        <div class="flex justify-around items-center h-16">
+            <button onclick="window.location.href='home.html'" class="flex flex-col items-center gap-1 text-gray-400 hover:text-white">
+                <i class="fa-solid fa-house text-xl"></i>
+                <span class="text-[10px]">Inicio</span>
+            </button>
+            <button onclick="window.location.href='playlist.html'" class="flex flex-col items-center gap-1 text-gray-400 hover:text-white">
+                <i class="fa-solid fa-music text-xl"></i>
+                <span class="text-[10px]">Playlist</span>
+            </button>
+        </div>
+    </nav>
+
+    <script>
+        // ==========================================
+        // 🔒 REGISTRA AQUÍ TUS 5 CÓDIGOS REALES
+        // Cambia las palabras en MAYÚSCULAS por tus verdaderos códigos.
+        // El slot 0 es el candado 1, el slot 1 es el candado 2, etc.
+        // ==========================================
+        const codigosConfig = {
+            'X7B9Q': { slot: 0, mensaje: '¡Excelente! Encontraste el primer candado.' },
+            '4MT2K': { slot: 1, mensaje: '¡Muy bien, amor! Segundo candado abierto.' },
+            'P9R5W': { slot: 2, mensaje: '¡Vas por la mitad! Sigue buscando.' },
+            '2YJ8C': { slot: 3, mensaje: '¡Ya casi! Solo falta un código más.' },
+            '6DH3N': { slot: 4, mensaje: '¡Increíble! El último candado fue abierto.' }
+        };
+        // ==========================================
+
+        // Estado en localStorage guardando los índices de los candados abiertos
+        let slotsDesbloqueados = JSON.parse(localStorage.getItem('naela_slots')) || [];
+        let html5QrcodeScanner = null;
+        let alertTimeout = null;
+
+        // Función para mostrar alertas animadas
+        function showCustomAlert(message, type) {
+            const alertBox = document.getElementById('custom-alert');
+            const alertContent = document.getElementById('custom-alert-content');
+            
+            // Limpiar timeout anterior si se activa rápido
+            if(alertTimeout) clearTimeout(alertTimeout);
+            
+            alertContent.innerHTML = message;
+            alertContent.className = 'px-5 py-3 rounded-xl shadow-lg shadow-black/50 font-semibold text-sm text-center border';
+            
+            // Colores dependiendo del tipo de alerta
+            if (type === 'success') {
+                alertContent.classList.add('bg-gray-900', 'text-[#00f5ff]', 'border-[#00f5ff]');
+            } else if (type === 'error') {
+                alertContent.classList.add('bg-gray-900', 'text-red-400', 'border-red-500');
+            } else if (type === 'warning') {
+                alertContent.classList.add('bg-gray-900', 'text-yellow-400', 'border-yellow-500');
+            }
+
+            // Animación de entrada
+            alertBox.classList.remove('opacity-0', '-translate-y-4');
+            alertBox.classList.add('opacity-100', 'translate-y-0');
+
+            // Animación de salida después de 3 segundos
+            alertTimeout = setTimeout(() => {
+                alertBox.classList.remove('opacity-100', 'translate-y-0');
+                alertBox.classList.add('opacity-0', '-translate-y-4');
+            }, 3000);
+        }
+
+        function initUI() {
+            renderPadlocks();
+            updateProgress();
+            checkFinalState();
+        }
+
+        function renderPadlocks() {
+            const container = document.getElementById('padlocks-container');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < 5; i++) {
+                const isUnlocked = slotsDesbloqueados.includes(i);
+                const colorClass = isUnlocked ? 'border-[#00f5ff] bg-[#00f5ff]/20 accent-aqua' : 'border-gray-700 bg-gray-900 text-gray-600';
+                const iconClass = isUnlocked ? 'fa-unlock' : 'fa-lock';
+                
+                container.innerHTML += `
+                    <div class="flex flex-col items-center">
+                        <div class="w-11 h-11 rounded-xl border-2 ${colorClass} flex items-center justify-center mb-1 transition-all duration-500 shadow-md">
+                            <i class="fa-solid ${iconClass} text-sm"></i>
+                        </div>
+                        <span class="text-[9px] text-gray-500 font-bold">Pista ${i+1}</span>
+                    </div>
+                `;
+            }
+        }
+
+        function updateProgress() {
+            const total = slotsDesbloqueados.length;
+            const percentage = (total / 5) * 100;
+            document.getElementById('progress-bar').style.width = `${percentage}%`;
+            document.getElementById('progress-text').innerText = `${total} / 5 Códigos`;
+        }
+
+        function verificarCodigo(input) {
+            const cleanCode = input.trim().toUpperCase();
+            
+            if (codigosConfig[cleanCode] !== undefined) {
+                const targetSlot = codigosConfig[cleanCode].slot;
+                const mensajeExito = codigosConfig[cleanCode].mensaje;
+
+                if (slotsDesbloqueados.includes(targetSlot)) {
+                    showCustomAlert("⚠️ Este candado ya fue abierto previamente.", "warning");
+                    return;
+                }
+
+                // Guardar progreso del candado específico
+                slotsDesbloqueados.push(targetSlot);
+                localStorage.setItem('naela_slots', JSON.stringify(slotsDesbloqueados));
+                
+                showCustomAlert(`✨ ${mensajeExito}`, "success");
+                document.getElementById('manual-code-input').value = '';
+                
+                stopCamera();
+                initUI();
+            } else {
+                showCustomAlert("❌ Código incorrecto. ¡Sigue buscando las pistas!", "error");
+            }
+        }
+
+        function canjearCodigoManual() {
+            const val = document.getElementById('manual-code-input').value;
+            if(val) verificarCodigo(val);
+        }
+
+        function toggleCamera() {
+            const readerDiv = document.getElementById('reader');
+            if (readerDiv.classList.contains('hidden')) {
+                readerDiv.classList.remove('hidden');
+                html5QrcodeScanner = new Html5Qrcode("reader");
+                html5QrcodeScanner.start(
+                    { facingMode: "environment" }, 
+                    { fps: 10, qrbox: { width: 220, height: 220 } },
+                    (text) => { verificarCodigo(text); },
+                    () => {}
+                ).catch(() => {
+                    showCustomAlert("Error abriendo cámara. Revisa permisos e ingresa vía HTTPS.", "error");
+                    readerDiv.classList.add('hidden');
+                });
+            } else {
+                stopCamera();
+            }
+        }
+
+        function stopCamera() {
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.stop().then(() => {
+                    document.getElementById('reader').classList.add('hidden');
+                    html5QrcodeScanner.clear();
+                    html5QrcodeScanner = null;
+                }).catch(e => console.log(e));
+            }
+        }
+
+        function checkFinalState() {
+            if (slotsDesbloqueados.length === 5) {
+                document.getElementById('input-controls').classList.add('hidden');
+                document.getElementById('final-reward').classList.remove('hidden');
+                
+                confetti({ particleCount: 140, spread: 80, origin: { y: 0.6 }, colors: ['#00f5ff', '#ff69b4', '#ffffff'] });
+
+                const qrBox = document.getElementById('qrcode-container');
+                if (qrBox.innerHTML === '') {
+                    new QRCode(qrBox, {
+                        text: "REGALO_FINAL_NAELA_2026_VERIFICADO",
+                        width: 140,
+                        height: 140,
+                        colorDark : "#000000",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.H
+                    });
+                }
+            }
+        }
+
+        window.onload = initUI;
+    </script>
+</body>
+</html>

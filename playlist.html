@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Naela Walter</title>
+    <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #121212; color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .glass-panel { background: rgba(24, 24, 24, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .accent-aqua { color: #00f5ff; }
+        .bg-aqua { background-color: #00f5ff; }
+        
+        /* Estilos para la barra de progreso (Aviso CSS Corregido) */
+        input[type=range] {
+            -webkit-appearance: none;
+            appearance: none; /* Estándar agregado */
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none; /* Estándar agregado */
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            background: #ffffff; /* Blanco como Spotify */
+            cursor: pointer;
+            margin-top: -4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #4d4d4d;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="w-screen h-screen pt-24 pb-28 px-4 relative overflow-x-hidden">
+
+    <audio id="local-player" src=""></audio>
+
+    <!-- HEADER GLOBAL -->
+    <header class="fixed top-0 left-0 w-full z-40 bg-gradient-to-b from-[#00f5ff]/10 to-transparent pt-10 pb-4 px-6 flex items-center gap-4">
+        <img src="assets/perfil-naela.jpg" alt="Perfil" class="w-12 h-12 rounded-full object-cover border-2 border-[#00f5ff] shadow-lg bg-gray-800">
+        <div>
+            <p class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Escuchando</p>
+            <h1 class="text-xl font-bold">Nuestra Playlist</h1>
+        </div>
+    </header>
+
+    <main class="mt-4">
+        <div class="flex justify-between items-center mb-6 px-2">
+            <h2 class="text-2xl font-bold tracking-wide">Para Ti</h2>
+            <button id="main-shuffle-btn" onclick="toggleShuffle()" class="text-gray-400 hover:accent-aqua transition-colors p-2">
+                <i class="fa-solid fa-shuffle text-xl"></i>
+            </button>
+        </div>
+        
+        <div id="song-list" class="flex flex-col gap-2">
+            <!-- Renderizado dinámico -->
+        </div>
+    </main>
+
+    <!-- VISTA DE REPRODUCCIÓN (MODAL ESTILO SPOTIFY) -->
+    <div id="now-playing-view" class="fixed inset-0 bg-gradient-to-b from-[#1a1a1a] to-[#121212] z-50 flex flex-col transition-transform duration-500 translate-y-full">
+        
+        <!-- Botón de Cerrar Modal -->
+        <div class="pt-8 pb-2 px-6 flex justify-between items-center">
+            <button onclick="closePlayerView()" class="text-gray-400 hover:text-white p-2">
+                <i class="fa-solid fa-chevron-down text-xl"></i>
+            </button>
+            <span class="text-xs font-bold tracking-widest text-white uppercase">Reproduciendo</span>
+            <button class="text-gray-400 p-2"><i class="fa-solid fa-ellipsis"></i></button>
+        </div>
+
+        <!-- Portada (Ajustada para que no se vea gigante) -->
+        <div class="flex-1 flex items-center justify-center px-8 mt-2 mb-4">
+            <!-- max-w-[320px] asegura que en pantallas grandes no crezca a lo loco -->
+            <img id="np-cover" src="" alt="Cover" class="w-full max-w-[320px] aspect-square rounded-md object-cover shadow-2xl shadow-black/60">
+        </div>
+
+        <!-- Info y Controles -->
+        <div class="pb-10 px-8 max-w-[400px] mx-auto w-full">
+            <div class="mb-5 flex justify-between items-center">
+                <div class="overflow-hidden pr-4">
+                    <h2 id="np-title" class="text-2xl font-bold text-white mb-1 truncate">Título</h2>
+                    <p id="np-artist" class="text-gray-400 text-sm truncate">Artista</p>
+                </div>
+                <button class="text-[#00f5ff] text-xl p-2">
+                    <i class="fa-solid fa-heart"></i>
+                </button>
+            </div>
+
+            <!-- Barra de Progreso -->
+            <div class="mb-5">
+                <input type="range" id="progress-bar" value="0" min="0" max="100" oninput="seekTo(this.value)">
+                <div class="flex justify-between text-[11px] text-gray-400 font-medium mt-1">
+                    <span id="current-time">0:00</span>
+                    <span id="total-duration">0:00</span>
+                </div>
+            </div>
+
+            <!-- Controles Principales -->
+            <div class="flex justify-between items-center px-2">
+                <button id="modal-shuffle-btn" onclick="toggleShuffle()" class="text-gray-400 text-xl transition-colors">
+                    <i class="fa-solid fa-shuffle"></i>
+                </button>
+                <button onclick="prevTrack()" class="text-white text-3xl hover:text-gray-300 transition-colors">
+                    <i class="fa-solid fa-backward-step"></i>
+                </button>
+                <button onclick="togglePlayPause()" class="w-16 h-16 bg-white rounded-full flex items-center justify-center text-black text-2xl shadow-md active:scale-95 transition-transform">
+                    <i id="play-pause-icon" class="fa-solid fa-pause"></i>
+                </button>
+                <button onclick="nextTrack()" class="text-white text-3xl hover:text-gray-300 transition-colors">
+                    <i class="fa-solid fa-forward-step"></i>
+                </button>
+                <button class="text-gray-400 text-xl transition-colors">
+                    <i class="fa-solid fa-repeat"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAV BAR -->
+    <nav class="fixed bottom-0 left-0 w-full glass-panel bg-black/90 z-40 py-2 px-6">
+        <div class="flex justify-around items-center h-16">
+            <button onclick="window.location.href='home.html'" class="flex flex-col items-center gap-1 text-gray-400 hover:text-white">
+                <i class="fa-solid fa-house text-xl"></i>
+                <span class="text-[10px]">Inicio</span>
+            </button>
+            <button onclick="window.location.href='playlist.html'" class="flex flex-col items-center gap-1 accent-aqua">
+                <i class="fa-solid fa-music text-xl"></i>
+                <span class="text-[10px]">Playlist</span>
+            </button>
+        </div>
+    </nav>
+
+    <script>
+        let playMode = 'normal'; 
+        let currentSongId = null;
+        const player = document.getElementById('local-player');
+        
+        const npView = document.getElementById('now-playing-view');
+        const npCover = document.getElementById('np-cover');
+        const npTitle = document.getElementById('np-title');
+        const npArtist = document.getElementById('np-artist');
+        const playPauseIcon = document.getElementById('play-pause-icon');
+        const progressBar = document.getElementById('progress-bar');
+        const currentTimeEl = document.getElementById('current-time');
+        const totalDurationEl = document.getElementById('total-duration');
+
+        const playlist = [
+            { id: 1, titulo: "Buscarte Lejos", artista: "Duki", urlPortada: "assets/portadas/cover1.jpg", urlAudio: "assets/audio/cancion1.mp3" },
+            { id: 2, titulo: "Into You", artista: "Ariana Grande", urlPortada: "assets/portadas/cover2.jpg", urlAudio: "assets/audio/cancion2.mp3" },
+            { id: 3, titulo: "Amor de Cine", artista: "Humbe", urlPortada: "assets/portadas/cover3.jpg", urlAudio: "assets/audio/cancion3.mp3" },
+            { id: 4, titulo: "Safety net", artista: "Ariana Grande, Ty Dolla $ign", urlPortada: "assets/portadas/cover4.jpg", urlAudio: "assets/audio/cancion4.mp3" },
+            { id: 5, titulo: "Blame", artista: "Calvin Harris (Feat. John Newman)", urlPortada: "assets/portadas/cover5.jpg", urlAudio: "assets/audio/cancion5.mp3" },
+            { id: 6, titulo: "My hair", artista: "Ariana Grande", urlPortada: "assets/portadas/cover6.jpg", urlAudio: "assets/audio/cancion6.mp3" },
+            { id: 7, titulo: "Solo por vos", artista: "Trueno", urlPortada: "assets/portadas/cover7.jpg", urlAudio: "assets/audio/cancion7.mp3" },
+            { id: 8, titulo: "Bad Decisions", artista: "Ariana Grande", urlPortada: "assets/portadas/cover8.jpg", urlAudio: "assets/audio/cancion8.mp3" },
+            { id: 9, titulo: "Shot down", artista: "Khalid", urlPortada: "assets/portadas/cover9.jpg", urlAudio: "assets/audio/cancion9.mp3" },
+            { id: 10, titulo: "Reina Pepiada", artista: "Alvaro Díaz", urlPortada: "assets/portadas/cover10.jpg", urlAudio: "assets/audio/cancion10.mp3" },
+            { id: 11, titulo: "Moonlight", artista: "Ariana Grande", urlPortada: "assets/portadas/cover11.jpg", urlAudio: "assets/audio/cancion11.mp3" },
+            { id: 12, titulo: "Dandelion", artista: "Ariana Grande", urlPortada: "assets/portadas/cover12.jpg", urlAudio: "assets/audio/cancion12.mp3" },
+            { id: 13, titulo: "M.A.I", artista: "Milo j", urlPortada: "assets/portadas/cover13.jpg", urlAudio: "assets/audio/cancion13.mp3" },
+            { id: 14, titulo: "Una y Otra Vez", artista: "Manuel Medrano", urlPortada: "assets/portadas/cover14.jpg", urlAudio: "assets/audio/cancion14.mp3" },
+            { id: 15, titulo: "Paper Rings", artista: "Taylor Swift", urlPortada: "assets/portadas/cover15.jpg", urlAudio: "assets/audio/cancion15.mp3" }
+        ];
+
+        function renderTracks() {
+            const container = document.getElementById('song-list');
+            container.innerHTML = '';
+
+            playlist.forEach((song) => {
+                const isPlaying = currentSongId === song.id;
+                const titleColor = isPlaying ? 'accent-aqua font-bold' : 'text-white';
+                
+                const div = document.createElement('div');
+                div.className = `flex items-center p-3 rounded-xl hover:bg-gray-900 transition-colors cursor-pointer ${isPlaying ? 'bg-gray-900' : ''}`;
+                div.onclick = () => {
+                    if(currentSongId === song.id) {
+                        openPlayerView();
+                    } else {
+                        playTrack(song.id);
+                    }
+                };
+                
+                div.innerHTML = `
+                    <img src="${song.urlPortada}" alt="Cover" class="w-12 h-12 rounded-lg object-cover bg-gray-800 shadow">
+                    <div class="ml-4 flex-grow">
+                        <h4 class="${titleColor} text-sm">${song.titulo}</h4>
+                        <p class="text-xs text-gray-400">${song.artista}</p>
+                    </div>
+                    ${isPlaying ? '<i class="fa-solid fa-waveform accent-aqua text-sm animate-bounce"></i>' : '<i class="fa-solid fa-play text-gray-500 text-xs"></i>'}
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function playTrack(id) {
+            const track = playlist.find(s => s.id === id);
+            if (!track) return;
+
+            currentSongId = id;
+            player.src = track.urlAudio;
+            
+            npCover.src = track.urlPortada;
+            npTitle.innerText = track.titulo;
+            npArtist.innerText = track.artista;
+            
+            player.play().then(() => {
+                playPauseIcon.className = "fa-solid fa-pause";
+                openPlayerView();
+            }).catch(e => console.log("Se requiere interacción del usuario primero"));
+            
+            renderTracks();
+        }
+
+        function togglePlayPause() {
+            if (!currentSongId) return;
+            if (player.paused) {
+                player.play();
+                playPauseIcon.className = "fa-solid fa-pause";
+            } else {
+                player.pause();
+                playPauseIcon.className = "fa-solid fa-play";
+            }
+        }
+
+        function nextTrack() {
+            if(!currentSongId) return;
+            const index = playlist.findIndex(s => s.id === currentSongId);
+            let next = playMode === 'shuffle' ? Math.floor(Math.random() * playlist.length) : (index + 1) % playlist.length;
+            playTrack(playlist[next].id);
+        }
+
+        function prevTrack() {
+            if(!currentSongId) return;
+            if(player.currentTime > 3) {
+                player.currentTime = 0;
+            } else {
+                const index = playlist.findIndex(s => s.id === currentSongId);
+                let prev = index === 0 ? playlist.length - 1 : index - 1;
+                playTrack(playlist[prev].id);
+            }
+        }
+
+        function toggleShuffle() {
+            const mainBtn = document.getElementById('main-shuffle-btn');
+            const modalBtn = document.getElementById('modal-shuffle-btn');
+            
+            if (playMode === 'normal') {
+                playMode = 'shuffle';
+                mainBtn.classList.add('accent-aqua'); mainBtn.classList.remove('text-gray-400');
+                modalBtn.classList.add('text-[#00f5ff]'); modalBtn.classList.remove('text-gray-400');
+            } else {
+                playMode = 'normal';
+                mainBtn.classList.remove('accent-aqua'); mainBtn.classList.add('text-gray-400');
+                modalBtn.classList.remove('text-[#00f5ff]'); modalBtn.classList.add('text-gray-400');
+            }
+        }
+
+        player.addEventListener('timeupdate', () => {
+            if (player.duration) {
+                const progressPercent = (player.currentTime / player.duration) * 100;
+                progressBar.value = progressPercent;
+                currentTimeEl.innerText = formatTime(player.currentTime);
+                totalDurationEl.innerText = formatTime(player.duration);
+                
+                // Colorear la barra deslizada
+                progressBar.style.background = `linear-gradient(to right, #ffffff ${progressPercent}%, #4d4d4d ${progressPercent}%)`;
+            }
+        });
+
+        player.addEventListener('ended', nextTrack);
+
+        function seekTo(value) {
+            if(player.duration) {
+                player.currentTime = (value / 100) * player.duration;
+            }
+        }
+
+        function formatTime(seconds) {
+            if(isNaN(seconds)) return "0:00";
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        function openPlayerView() {
+            npView.classList.remove('translate-y-full');
+        }
+
+        function closePlayerView() {
+            npView.classList.add('translate-y-full');
+        }
+
+        window.onload = renderTracks;
+    </script>
+</body>
+</html>

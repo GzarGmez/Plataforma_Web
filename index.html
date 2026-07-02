@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Naela Walter</title>
+    <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #121212; color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .glass-panel { background: rgba(24, 24, 24, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .accent-aqua { color: #00f5ff; }
+        .bg-aqua { background-color: #00f5ff; }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden relative flex items-center justify-center px-6">
+
+    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat z-0" style="background-image: url('assets/fondo-login.jpg');">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+    </div>
+    
+    <div id="login-card" class="relative z-10 glass-panel p-8 rounded-3xl w-full max-w-sm text-center transition-all duration-500">
+        <i class="fa-solid fa-heart text-5xl accent-aqua mb-6 animate-pulse"></i>
+        <h2 class="text-2xl font-bold mb-6 tracking-wide">Inicio de Sesión</h2>
+        
+        <div class="text-left mb-4">
+            <label class="text-xs text-gray-400 font-semibold ml-2">Tu Correo</label>
+            <input type="email" id="email-input" placeholder="ejemplo@correo.com" class="w-full bg-black/50 border border-gray-700 rounded-full px-5 py-3 mt-1 text-white focus:outline-none focus:border-[#00f5ff]">
+        </div>
+        
+        <div class="text-left mb-8">
+            <label class="text-xs text-gray-400 font-semibold ml-2">Contraseña</label>
+            <input type="password" id="password-input" placeholder="••••••••" class="w-full bg-black/50 border border-gray-700 rounded-full px-5 py-3 mt-1 text-white focus:outline-none focus:border-[#00f5ff]">
+        </div>
+
+        <button onclick="validarAcceso()" class="w-full bg-aqua hover:bg-[#00d8e6] text-black font-bold py-3 rounded-full transition-transform active:scale-95 shadow-lg shadow-[#00f5ff]/20">
+            Ingresar
+        </button>
+    </div>
+
+    <div id="welcome-overlay" class="hidden fixed inset-0 bg-black/95 z-50 flex flex-col items-center justify-center text-center p-6 transition-opacity duration-500 opacity-0">
+        <i class="fa-solid fa-heart text-7xl accent-aqua mb-6 animate-bounce"></i>
+        <h1 class="text-4xl font-extrabold tracking-wide accent-aqua drop-shadow-lg">¡Bienvenida, corazón!</h1>
+        <p class="text-gray-400 mt-3 text-sm tracking-widest uppercase">Cargando tu espacio...</p>
+    </div>
+
+    <script>
+        // ==========================================
+        // CONFIGURA AQUÍ LAS CREDENCIALES DE NAELA
+        // ==========================================
+        const EMAIL_CORRECTO = "Naela@walter.com";
+        const PASSWORD_CORRECTA = "Tequieromuchocorazon";
+
+        function validarAcceso() {
+            const emailUser = document.getElementById('email-input').value.trim();
+            const passwordUser = document.getElementById('password-input').value;
+
+            if (emailUser === EMAIL_CORRECTO && passwordUser === PASSWORD_CORRECTA) {
+                // Ocultar tarjeta e iniciar animación de bienvenida
+                document.getElementById('login-card').classList.add('scale-95', 'opacity-0');
+                
+                const overlay = document.getElementById('welcome-overlay');
+                overlay.classList.remove('hidden');
+                setTimeout(() => { overlay.classList.add('opacity-100'); }, 50);
+
+                // Redirigir después de 2.5 segundos
+                setTimeout(() => {
+                    window.location.href = 'home.html';
+                }, 2500);
+
+            } else {
+                alert("❌ Correo o contraseña incorrectos, mi amor. Verifica bien.");
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Naela Walter</title>
+    <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #121212; color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .glass-panel { background: rgba(24, 24, 24, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .accent-aqua { color: #00f5ff; }
+    </style>
+</head>
+<body class="w-screen h-screen pt-24 pb-20 px-6 relative overflow-x-hidden">
+
+    <header class="fixed top-0 left-0 w-full z-40 bg-gradient-to-b from-[#00f5ff]/10 to-transparent pt-10 pb-4 px-6 flex items-center gap-4">
+        <img src="assets/perfil-naela.jpg" alt="Perfil" class="w-12 h-12 rounded-full object-cover border-2 border-[#00f5ff] shadow-lg bg-gray-800">
+        <div>
+            <p class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Bienvenida</p>
+            <h1 class="text-xl font-bold">Hola, Naela Walter</h1>
+        </div>
+    </header>
+
+    <main class="mt-4">
+        <h2 class="text-2xl font-bold mb-6 tracking-wide">Tu espacio personal</h2>
+        <div class="grid grid-cols-1 gap-6">
+            
+            <div onclick="window.location.href='regalos.html'" class="bg-gradient-to-br from-purple-900 to-indigo-950 rounded-2xl p-6 shadow-xl relative overflow-hidden transition-transform active:scale-95 cursor-pointer">
+                <div class="relative z-10">
+                    <i class="fa-solid fa-gift text-4xl mb-4 text-purple-300"></i>
+                    <h3 class="text-2xl font-bold">Regalos</h3>
+                    <p class="text-purple-200 mt-2 text-sm">Sorpresas por desbloquear</p>
+                </div>
+                <div class="absolute -bottom-4 -right-4 w-32 h-32 bg-purple-500 rounded-full blur-2xl opacity-30"></div>
+            </div>
+
+            <div onclick="window.location.href='playlist.html'" class="bg-gradient-to-br from-cyan-900 to-slate-950 rounded-2xl p-6 shadow-xl relative overflow-hidden transition-transform active:scale-95 cursor-pointer">
+                <div class="relative z-10">
+                    <i class="fa-brands fa-spotify text-4xl mb-4 text-cyan-300"></i>
+                    <h3 class="text-2xl font-bold">Mi Spotify</h3>
+                    <p class="text-cyan-200 mt-2 text-sm">Nuestras Canciones Favoritas</p>
+                </div>
+                <div class="absolute -bottom-4 -right-4 w-32 h-32 bg-cyan-500 rounded-full blur-2xl opacity-30"></div>
+            </div>
+
+        </div>
+    </main>
+
+    <nav class="fixed bottom-0 left-0 w-full glass-panel bg-black/90 z-40 py-2 px-6">
+        <div class="flex justify-around items-center h-16">
+            <button onclick="window.location.href='home.html'" class="flex flex-col items-center gap-1 accent-aqua">
+                <i class="fa-solid fa-house text-xl"></i>
+                <span class="text-[10px]">Inicio</span>
+            </button>
+            <button onclick="window.location.href='playlist.html'" class="flex flex-col items-center gap-1 text-gray-400 hover:text-white">
+                <i class="fa-solid fa-music text-xl"></i>
+                <span class="text-[10px]">Playlist</span>
+            </button>
+        </div>
+    </nav>
+
+</body>
+</html>
