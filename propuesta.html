@@ -84,7 +84,8 @@
             polaroid.onclick = () => openModal(i);
 
             const img = document.createElement('img');
-            img.src = `assets/propuesta/IMG_${i + 1}.jpg`; 
+            // Nota el cambio a .JPG en mayúscula para que coincida con tus archivos
+            img.src = `assets/propuesta/IMG_${i + 1}.JPG`; 
             img.className = 'w-full aspect-square object-cover rounded-sm border border-gray-200/50';
             
             polaroid.appendChild(img);
@@ -97,7 +98,7 @@
 
         function openModal(index) {
             currentIndex = index;
-            modalImg.src = `assets/propuesta/IMG_${currentIndex + 1}.jpg`;
+            modalImg.src = `assets/propuesta/IMG_${currentIndex + 1}.JPG`;
             
             modal.classList.remove('opacity-0', 'pointer-events-none');
             
@@ -125,7 +126,7 @@
             modalImgContainer.classList.add('opacity-50', 'scale-95');
             
             setTimeout(() => {
-                modalImg.src = `assets/propuesta/IMG_${currentIndex + 1}.jpg`;
+                modalImg.src = `assets/propuesta/IMG_${currentIndex + 1}.JPG`;
                 modalImgContainer.classList.remove('opacity-50', 'scale-95');
             }, 150);
         }
